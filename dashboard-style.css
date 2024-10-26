@@ -360,10 +360,11 @@ p, span {
     display: flex;
     gap: 20px;
     margin-bottom: 20px;
+    padding: 20px;
 }
 
 .wallet-section {
-    flex: 0 0 300px; /* Fixed width of 300px */
+    flex: 0 0 300px; /* Fixed width */
 }
 
 .chart-section {
@@ -371,99 +372,213 @@ p, span {
     min-width: 0; /* Prevents flex item from overflowing */
 }
 
-.chart-container {
-    width: 100%;
-    height: 500px;
-    background-color: var(--lightDark);
-    border: 1px solid var(--darkText);
-    border-radius: 8px;
-    padding: 15px;
+.referral-section {
+    flex: 0 0 300px; /* Fixed width */
 }
 
-.wallet-card {
-    width: 100%;
+.referral-card {
     background-color: var(--lightDark);
     border-radius: 8px;
     padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+    height: fit-content;
+}
+
+.referral-info {
+    margin-top: 15px;
+}
+
+.referral-link-container {
+    margin: 15px 0;
+    position: relative;
+}
+
+#referralLink {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--darkblue);
+    border: 1px solid var(--darkText);
+    border-radius: 4px;
+    color: var(--white);
+    margin-bottom: 10px;
+}
+
+#copyReferralLink {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--primarycolor);
+    color: var(--white);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#copyReferralLink:hover {
+    background-color: var(--secondarycolor);
+}
+
+.referral-stats {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.stat-item {
+    background-color: var(--darkblue);
+    padding: 15px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.stat-item h3 {
+    font-size: 0.9rem;
+    color: var(--darkText);
+    margin-bottom: 5px;
+}
+
+.stat-item span {
+    font-size: 1.2rem;
+    color: var(--white);
+    font-weight: bold;
 }
 
 /* Responsive adjustments */
-@media (max-width: 968px) {
+@media (max-width: 1200px) {
+    .dashboard-layout {
+        flex-wrap: wrap;
+    }
+
+    .referral-section {
+        flex: 1 1 100%;
+        order: 3;
+    }
+
+    .chart-section {
+        flex: 1 1 calc(100% - 320px);
+    }
+}
+
+@media (max-width: 768px) {
     .dashboard-layout {
         flex-direction: column;
     }
 
-    .wallet-section {
+    .wallet-section,
+    .chart-section,
+    .referral-section {
         flex: none;
         width: 100%;
     }
-
-    .chart-section {
-        width: 100%;
-    }
 }
 
-/* Add these new styles */
+/* Update the coin container and image sizes */
 .coin-container {
     position: relative;
-    width: 80px;
-    height: 80px;
+    width: 180px;  /* Container size */
+    height: 180px;
     cursor: pointer;
-    margin: 10px auto;
+    margin: 25px auto;
 }
 
 .coin-image {
-    width: 100%;
-    height: 100%;
-    transition: transform 0.2s;
-    object-fit: contain;
+    width: 180px;
+    height: 180px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+}
+
+/* Make sure the image scales properly */
+#clickableCoin {
+    width: 180px !important;  /* Force the size */
+    height: 180px !important;
+    min-width: 180px;
+    min-height: 180px;
+}
+
+/* If you want it even bigger, try these sizes: */
+/*
+.coin-container {
+    width: 250px;
+    height: 250px;
+}
+
+.coin-image, #clickableCoin {
+    width: 250px !important;
+    height: 250px !important;
+    min-width: 250px;
+    min-height: 250px;
+}
+*/
+
+/* Update the wallet card to accommodate larger logo */
+.wallet-card {
+    background-color: var(--lightDark);
+    border-radius: 8px;
+    padding: 30px; /* Increased padding */
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* Keep the Binance logo at previous size */
+.wallet-icon {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 15px;
+}
+
+/* Adjust the balance text size */
+.balance {
+    font-size: 1.5rem; /* Slightly larger font size */
+    font-weight: bold;
+    color: var(--white);
+    margin-top: 20px;
+    display: block;
+}
+
+/* Adjust card titles */
+.wallet-card h3 {
+    font-size: 1.4rem; /* Larger title size */
+    margin: 12px 0;
+}
+
+/* Make the +1 animation text bigger to match the larger coin */
+.plus-one {
+    font-size: 1.5rem; /* Increased from 1.2rem */
+    color: #00ff00;
+    font-weight: bold;
+}
+
+/* Update animation styles */
+.coin-image:hover {
+    transform: scale(1.05);
+}
+
+.coin-image:active {
+    transform: scale(0.95);
 }
 
 .plus-one {
     position: absolute;
     color: #00ff00;
     font-weight: bold;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     pointer-events: none;
     z-index: 100;
+    text-shadow: 0 0 3px rgba(0, 255, 0, 0.5);
 }
 
 @keyframes floatUp {
     0% {
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
         opacity: 1;
     }
+    50% {
+        transform: translateY(-25px) scale(1.1);
+        opacity: 0.8;
+    }
     100% {
-        transform: translateY(-50px);
+        transform: translateY(-50px) scale(1);
         opacity: 0;
     }
-}
-
-/* Update wallet section styles */
-.wallet-section {
-    flex: 0 0 300px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.wallet-card {
-    margin-bottom: 0;
-}
-
-/* Add hover effect for the coin */
-.coin-image:hover {
-    transform: scale(1.05);
-}
-
-.balance {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: var(--white);
-    margin-top: 10px;
-    display: block;
 }

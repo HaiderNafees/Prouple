@@ -51,6 +51,13 @@ document.addEventListener('DOMContentLoaded', function() {
             userNameElement.textContent = user.email;
         }
 
+        // Load token balance
+        const tokenBalance = await loadTokenBalance(user.uid);
+        const tokenBalanceElement = document.getElementById('tokenBalance');
+        if (tokenBalanceElement) {
+            tokenBalanceElement.textContent = `${tokenBalance} PRPL`;
+        }
+
         // Setup referral program
         const userId = user.uid;
         const referralLink = `https://yourwebsite.com/signup?ref=${userId}`;
@@ -288,59 +295,104 @@ document.addEventListener('DOMContentLoaded', function() {
     const tokenBalanceElement = document.getElementById('tokenBalance');
     let tokenBalance = 0;
 
+    // Load initial balance when user is authenticated
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            tokenBalance = await loadTokenBalance(user.uid);
+            tokenBalanceElement.textContent = `${tokenBalance} PRPL`;
+        }
+    });
+
     if (coin && tokenBalanceElement) {
-        coin.addEventListener('click', function(e) {
-            // Update token balance
-            tokenBalance++;
+        let clickCount = 0;
+        let lastClickTime = 0;
+        let saveTimeout = null;
+
+        coin.addEventListener('click', async function(e) {
+            const currentTime = Date.now();
+            const timeDiff = currentTime - lastClickTime;
+            lastClickTime = currentTime;
+
+            // Increment token based on click speed (but always show +1)
+            let increment = 1;
+            if (timeDiff < 200) increment = 3;
+            else if (timeDiff < 400) increment = 2;
+
+            tokenBalance += increment;
+            clickCount += increment;
             tokenBalanceElement.textContent = `${tokenBalance} PRPL`;
 
             // Create and position the +1 element
             const newPlusOne = document.createElement('span');
             newPlusOne.className = 'plus-one';
-            newPlusOne.textContent = '+1';
+            newPlusOne.textContent = '+1'; // Always show +1
             
-            // Get click position relative to coin container
+            // Random position around click point
             const rect = coin.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+            const randomOffset = (Math.random() - 0.5) * 30;
+            const x = (e.clientX - rect.left) + randomOffset;
+            const y = (e.clientY - rect.top) + randomOffset;
             
             newPlusOne.style.position = 'absolute';
             newPlusOne.style.left = `${x}px`;
             newPlusOne.style.top = `${y}px`;
-            newPlusOne.style.animation = 'floatUp 1s ease-out forwards';
+            newPlusOne.style.animation = 'floatUp 0.4s ease-out forwards';
 
-            // Add to container
             coin.parentElement.appendChild(newPlusOne);
 
-            // Remove after animation
-            setTimeout(() => {
-                newPlusOne.remove();
-            }, 1000);
-
-            // Coin click animation
+            // Quick coin animation
             coin.style.transform = 'scale(0.95)';
             setTimeout(() => {
                 coin.style.transform = 'scale(1)';
-            }, 100);
+            }, 50);
 
-            // Save to Firebase if needed
-            if (auth.currentUser) {
-                updateTokenBalance(auth.currentUser.uid, tokenBalance);
-            }
-        });
-    } else {
-        console.error('Required elements not found:', {
-            coin: !!coin,
-            tokenBalance: !!tokenBalanceElement
+            // Remove plus one animation after it's complete
+            setTimeout(() => {
+                newPlusOne.remove();
+            }, 400);
+
+            // Debounced save to Firebase
+            if (saveTimeout) clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(async () => {
+                if (auth.currentUser && clickCount > 0) {
+                    try {
+                        const userDocRef = doc(db, 'users', auth.currentUser.uid);
+                        await updateDoc(userDocRef, {
+                            tokenBalance: tokenBalance
+                        });
+                        clickCount = 0; // Reset click count after saving
+                    } catch (error) {
+                        console.error('Error saving token balance:', error);
+                    }
+                }
+            }, 500);
         });
     }
-
-    // Add console logs to debug
-    console.log('Coin element:', document.getElementById('clickableCoin'));
-    console.log('Token balance element:', document.getElementById('tokenBalance'));
 });
 
-// Add this function to save the token balance to Firebase
+// Add this function to load the initial token balance
+async function loadTokenBalance(userId) {
+    try {
+        const userDocRef = doc(db, 'users', userId);
+        const userDoc = await getDoc(userDocRef);
+        
+        if (userDoc.exists()) {
+            const data = userDoc.data();
+            return data.tokenBalance || 0;
+        } else {
+            // If user document doesn't exist, create it with initial balance
+            await setDoc(userDocRef, {
+                tokenBalance: 0
+            });
+            return 0;
+        }
+    } catch (error) {
+        console.error('Error loading token balance:', error);
+        return 0;
+    }
+}
+
+// Add this function to save the token balance
 async function updateTokenBalance(userId, newBalance) {
     try {
         const userDocRef = doc(db, 'users', userId);
@@ -351,3 +403,57 @@ async function updateTokenBalance(userId, newBalance) {
         console.error('Error updating token balance:', error);
     }
 }
+
+// Add this to your existing script
+document.addEventListener('DOMContentLoaded', function() {
+    const copyButton = document.getElementById('copyReferralLink');
+    const referralLinkInput = document.getElementById('referralLink');
+    const referralCountElement = document.getElementById('referralCount');
+    const rewardsEarnedElement = document.getElementById('rewardsEarned');
+
+    // Generate and display referral link when user is authenticated
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const referralLink = `https://yourwebsite.com/signup?ref=${user.uid}`;
+            referralLinkInput.value = referralLink;
+
+            // Load referral stats
+            const userDocRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userDocRef);
+            
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                referralCountElement.textContent = data.referralCount || 0;
+                rewardsEarnedElement.textContent = `${(data.referralCount || 0) * 10} PRPL`; // 10 PRPL per referral
+            }
+        }
+    });
+
+    // Copy referral link functionality
+    copyButton.addEventListener('click', () => {
+        referralLinkInput.select();
+        document.execCommand('copy');
+        
+        // Visual feedback
+        copyButton.textContent = 'Copied!';
+        setTimeout(() => {
+            copyButton.textContent = 'Copy Link';
+        }, 2000);
+    });
+});
+
+// Add this function to handle new referrals
+async function handleNewReferral(referrerId) {
+    if (!referrerId) return;
+
+    const referrerDocRef = doc(db, 'users', referrerId);
+    
+    try {
+        await updateDoc(referrerDocRef, {
+            referralCount: increment(1)
+        });
+    } catch (error) {
+        console.error('Error updating referral count:', error);
+    }
+}
+

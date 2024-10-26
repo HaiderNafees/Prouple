@@ -23,13 +23,13 @@
         </header>
         <main>
             <div class="dashboard-layout">
-                <!-- Wallet section -->
+                <!-- Wallet section (left) -->
                 <div class="wallet-section">
                     <!-- Token Card -->
                     <div class="wallet-card" id="tokenCard">
                         <div class="coin-container">
                             <!-- Update the src to your actual token logo path -->
-                            <img src="img/token img.jpeg" alt="Token Logo" class="coin-image" id="clickableCoin">
+                            <img src="img/tokenimg.png" alt="Token Logo" class="coin-image" id="clickableCoin">
                         </div>
                         <h3>PRPL</h3>
                         <p>Prouple Token</p>
@@ -46,11 +46,35 @@
                     </div>
                 </div>
 
-                <!-- Chart section -->
+                <!-- Chart section (middle) -->
                 <div class="chart-section">
                     <h2>Prouple Chart</h2>
                     <div class="chart-container">
                         <canvas id="proupleChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Referral section (right) -->
+                <div class="referral-section">
+                    <div class="referral-card">
+                        <h2>Referral Program</h2>
+                        <div class="referral-info">
+                            <p>Share your referral link and earn rewards!</p>
+                            <div class="referral-link-container">
+                                <input type="text" id="referralLink" readonly>
+                                <button id="copyReferralLink">Copy Link</button>
+                            </div>
+                            <div class="referral-stats">
+                                <div class="stat-item">
+                                    <h3>Total Referrals</h3>
+                                    <span id="referralCount">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <h3>Rewards Earned</h3>
+                                    <span id="rewardsEarned">0 PRPL</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

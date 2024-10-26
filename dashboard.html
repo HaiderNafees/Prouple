@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Dashboard</title>
+    <link rel="stylesheet" href="dashboard-style.css">
+    <script src="https://kit.fontawesome.com/aa7454d09f.js" crossorigin="anonymous"></script>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <header>
+            <h1>Dashboard</h1>
+            <div class="user-menu">
+                <div class="user-profile">
+                    <i class="fas fa-user-circle"></i>
+                    <span>user@example.com</span>
+                </div>
+                <button id="logoutButton" class="logout-btn">Logout</button>
+            </div>
+        </header>
+        <main>
+            <div class="dashboard-layout">
+                <!-- Wallet section -->
+                <div class="wallet-section">
+                    <!-- Token Card -->
+                    <div class="wallet-card" id="tokenCard">
+                        <div class="coin-container">
+                            <!-- Update the src to your actual token logo path -->
+                            <img src="img/token img.jpeg" alt="Token Logo" class="coin-image" id="clickableCoin">
+                        </div>
+                        <h3>PRPL</h3>
+                        <p>Prouple Token</p>
+                        <span class="balance" id="tokenBalance">0 PRPL</span>
+                    </div>
+
+                    <!-- Binance Card -->
+                    <div class="wallet-card" id="binanceWalletCard">
+                        <img src="./img/binance-logo.png" alt="Binance Logo" class="wallet-icon">
+                        <h3>BNB</h3>
+                        <p>Binance Coin</p>
+                        <span class="balance" id="binanceBalance">Not connected</span>
+                        <button id="connectBinance" class="connect-btn">Connect</button>
+                    </div>
+                </div>
+
+                <!-- Chart section -->
+                <div class="chart-section">
+                    <h2>Prouple Chart</h2>
+                    <div class="chart-container">
+                        <canvas id="proupleChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ... rest of your content ... -->
+        </main>
+    </div>
+    <script type="module" src="dashboard-script.js"></script>
+</body>
+</html>
